@@ -1,0 +1,38 @@
+For distortion correction FSL_topup/applytopup was used. 
+This was done using the 5 extra volumes collected with the reversed posterior-anterior phase-encode blips, resulting in distortion in opposite direction of the original 280 anterior-posterior fMRI volumes. 
+Using these pairs, distortion in the anterior-posterior direction was estimated and corrected, resulting in 280 distortion corrected anterior-posterior fMRI volumes for each participant. 
+
+Code used (for participant example 'TRACK_PD_035':
+
+First extract b0 images from both AP and PA fMRI images using FSLroi.
+
+  $fslroi TRACK-P035_rest_bold.nii.gz nodif_AP_035 0 1 
+  $fslroi TRACK-P035_rest_bold_PA.nii.gz nodif_PA_035 0 1
+
+Then merge these files to one file using FSL merge with AP as first image and PA as second image. This is important because of the parameters in the later used acquisition file. 
+
+  $fslmerge -t AP_PA_b0_035 nodif_AP_035 nodif_PA_035
+
+Now calculate the amount of distortion in these two images using FSL topup and acqparams.txt file. 
+
+  $topup --imain=AP_PA_b0_035 --datain=../acqparams.txt --config=b02b0.cnf --out=topup_035
+
+The acqparams.txt file is something you will receive from the scanner technicien and in our case looked the following: 
+0 -1 0 0.08576
+0 1 0 0.08576
+
+
+After the topup command, you know the distortion amount and hence know how much you need to correct for in the original document. 
+We will apply the correction using FSL applytopup
+  $applytopup --imain=TRACK-P035_rest_bold.nii.gz --inindex=1 --topup=topup_035 --datain=../acqparams.txt --method=jac --out=Track_PD_035_topup
+
+This in total results in a distortion corrected new fMRI image file named as TRACK_PD_035_topup. 
+
+
+All code together: 
+sjoerd$ cd Track_PD_035
+sjoerd$ fslroi TRACK-P035_rest_bold.nii.gz nodif_AP_035 0 1 
+sjoerd$ fslroi TRACK-P035_rest_bold_PA.nii.gz nodif_PA_035 0 1
+sjoerd$ fslmerge -t AP_PA_b0_035 nodif_AP_035 nodif_PA_035
+sjoerd$ topup --imain=AP_PA_b0_035 --datain=../acqparams.txt --config=b02b0.cnf --out=topup_035
+sjoerd$ applytopup --imain=TRACK-P035_rest_bold.nii.gz --inindex=1 --topup=topup_035 --datain=../acqparams.txt --method=jac --out=Track_PD_035_topup
