@@ -1,0 +1,27 @@
+As a measure for brain atrophy we used brain volume in our fMRI study. We calculated brain volume using FSL FAST, FSL maths and FSL stats. 
+
+First we used a brain mask produced in our T1 processing of the brain using freesurfer to extract the brain, as FSL BET did not extract the brain as good as we want, partly due to our dielectric temporal pads used while scanning.  
+Using this mask we extract the brain before FSL FAST. This extracting is done using FSL maths and the following code. 
+Example for participant TRACK_PD_035
+
+
+  $fslmaths /data/TRACK-P035/anat/processedMP2RAGE/TRACK-P035_T1_UNI.nii  -mas /data/TRACK-P035/anat/processedMP2RAGE/brain_mask.nii  /Brain_atrophy/Track_PD_035/T1_brain
+
+This produces a brain extracted brain via the mask. 
+
+Using this brain we will do tissue quantification of the gray and white matter. We will also do CSF, but do not take this into consideration in our analysis. 
+This is done using FSL FAST: 
+
+  $fast -t 1 -n 3 -H 0.1 -I 4 -l 20.0 -o /Brain_atrophy/Track_PD_035/Atrophy/Fast_output /Brain_atrophy/Track_PD_035/T1_brain.nii 
+
+Now we have several masks containing either white matter, gray matter or CSF. Now we will have to count the voxels in the gray and white matter mask in order to say something about volume. 
+This is done via FSL stats (0=CSF, 1=gray matter, 2=white matter). 
+  $fslstats /Brain_atrophy/Track_PD_037/Atrophy/Fast_output_pve_0.nii.gz -V
+  $fslstats /Brain_atrophy/Track_PD_037/Atrophy/Fast_output_pve_1.nii.gz -V
+  $fslstats /Brain_atrophy/Track_PD_037/Atrophy/Fast_output_pve_2.nii.gz -V
+
+This gives two outputs per mask, voxels and volume we're we used the volume. We defined brain volume as gray matter + white matter volume. 
+
+
+
+In order to do this not all manually a matlab code was written to do the FSL Fast and FSL stats steps automatically. 
