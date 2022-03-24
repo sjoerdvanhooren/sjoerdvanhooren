@@ -1,0 +1,20 @@
+After reforming the .resp and .puls into the .txt file containing the physical parameters we will use FSL pnm to produce the regressors. 
+This can be done using the pnm_gui
+
+The parameters were as following:
+Input physiological recordings			= .txt bestand 
+Input Timeseries (4D)				= gevormde Nifti bestand na FSL-TOPUP
+Column number of data: Cardiac:			= 2
+Respiratory					= 1
+Scanner triggers				= 3
+Geen gebruik van pulse ox Triggers
+Sampling Rate (Hz)				= 50
+TR (sec)					= 2 (2000 ms)
+Slide Order					= Interleaved, Up
+Scanner slice direction 			= Z
+Output						= TRACK_PD_002 map in de fMRI input map. Maakt het wellicht voor FEAT makkelijker. 
+EVs						= 4, 4, 2, 2. Default parameters. 
+Options (RVT, Heartrate, CSF)			= RVT
+
+This is the first step. Then manual peak detection and optimization was performed in firefox. 
+After that stage 2 was ran, which gives the output of the regressors fed into the FSL feat analysis. 
